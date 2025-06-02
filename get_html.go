@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func getHTML(url string) (string, error) {
@@ -22,8 +23,12 @@ func getHTML(url string) (string, error) {
 		return "", errors.New(fmt.Sprintf("Response failed with status code: %d and\nbody: %s\n", resp.StatusCode, body))
 	}
 
-	if resp.Header.Get("Content-Type") != "text/html" {
-		return "", errors.New("Response is not HTML")
+	if !strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "text/html") {
+		for x := range resp.Header {
+			fmt.Println(x, resp.Header[x])
+		}
+
+		return "", errors.New("\n\nResponse is not HTML")
 	}
 
 	return string(body), nil
