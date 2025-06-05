@@ -6,8 +6,8 @@ import (
 	"net/url"
 )
 
-func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
-	baseURLpieces, err := url.Parse(rawBaseURL)
+func (cfg *Config) crawlPage(rawCurrentURL string) {
+	baseURLpieces, err := url.Parse(cfg.baseURL.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,13 +22,13 @@ func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
 	}
 
 	normalizedURL := normalizeURL(rawCurrentURL)
-	if _, ok := pages[normalizedURL]; ok {
+	if _, ok := cfg.pages[normalizedURL]; ok {
 		fmt.Printf("already seen this url (%s, %s), incrementing count and returning\n", rawCurrentURL, normalizedURL)
-		pages[normalizedURL]++
+		cfg.pages[normalizedURL]++
 		return
 	}
 
-	pages[normalizedURL] = 1
+	cfg, pages[normalizedURL] = 1
 	htmlBody, err := getHTML(rawCurrentURL)
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +39,10 @@ func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
 	}
 
 	for _, thisUrl := range urls {
-		crawlPage(rawBaseURL, thisUrl, pages)
+		crawlPage(thisUrl)
 	}
+}
+
+func (cfg *Config) addPageVisit(normalizedURL string) (isFirst bool) {
+
 }
